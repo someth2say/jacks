@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.JsonPathException;
 
 public class json {
 
@@ -16,7 +17,7 @@ public class json {
 	    final ObjectMapper jsonWriter = new ObjectMapper();
 	    final ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    try {
-	        jsonWriter.writeValue(out, obj);
+	        jsonWriter.writerWithDefaultPrettyPrinter().writeValue(out, obj);
 	    } catch (final JsonGenerationException e) {
 	        throw new yqException("Can not generate JSON", e);
 	    } catch (final JsonMappingException e) {
@@ -33,7 +34,7 @@ public class json {
 	    try {
 	        obj = JsonPath.read(json, jsonPath);
 	        return objectToJsonInputStream(obj);
-	    } catch (final IOException e) {
+	    } catch (final IOException|JsonPathException e) {
 	        throw new yqException("Can not apply JsonPath",e);
 	    }
 	}
