@@ -1,19 +1,8 @@
 package org.redhattraining;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 import org.junit.jupiter.api.Test;
-import org.redhattraining.yq.yqException;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -42,33 +31,6 @@ public class yqTest {
                 "$.chapters[?is_compreview = true].chapter_word");
     }
 
-    @Test
-    public void yamlToJsonToYaml() throws yqException, IOException {
-        final InputStream json = yq.convertYamlToJson(Files.newInputStream(Paths.get("src/test/resources/dco.yml")));
-        final InputStream yaml = yq.convertJsonToYaml(json);
-        yaml.transferTo(System.out);
-        System.out.flush();
-    }
-
-    @Test
-    public void yamlPath() throws IOException, yqException {
-        final String jsonPath="$.chapters[*].chapter_word";
-        final InputStream yaml = Files.newInputStream(Paths.get("src/test/resources/dco.yml"));
-		final InputStream chapters = yq.yamlPath(jsonPath, yaml);
-        chapters.transferTo(System.out);
-        System.out.flush();
-    }
-
-    @Test
-    public void jsonPath() throws IOException, yqException {
-        
-        final String jsonPath="$.chapters[*].chapter_word";
-        final InputStream json = yq.convertYamlToJson(Files.newInputStream(Paths.get("src/test/resources/dco.yml")));
-
-		final InputStream chapters = yq.jsonPath(jsonPath, json);
-        chapters.transferTo(System.out);
-        System.out.flush();
-    }
 
 
 }

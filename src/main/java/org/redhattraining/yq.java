@@ -1,24 +1,11 @@
 package org.redhattraining;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.JsonPathException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -56,22 +43,12 @@ public class yq implements QuarkusApplication {
         final OutputStream output = System.out;
         InputStream input = System.in;
         try {
-            for (final Option option : cmd.getOptions()) {
-                switch (option.getOpt()) {
-                    case "f":
-                        input = setInputFile(option.getValue());
-                        break;
-                    case "q":
-                        input = applyQuery(input, option.getValue());
-                        break;
-                    case "o":
-                        input = convertYamlToJson(input);
-                }
-            }
+            input = applyOptions(cmd, input);
         } catch (final yqException e) {
             deepCauseToSysErr("Unable to process", e);
             return -1;
         }
+        
         try {
             input.transferTo(output);
             output.flush();
@@ -80,6 +57,22 @@ public class yq implements QuarkusApplication {
             return -1;
         }
         return 0;
+    }
+
+    private InputStream applyOptions(CommandLine cmd, InputStream input) throws yqException {
+        for (final Option option : cmd.getOptions()) {
+            switch (option.getOpt()) {
+                case "f":
+                    input = setInputFile(option.getValue());
+                    break;
+                case "q":
+                    input = yaml.yamlPath(option.getValue(), input);
+                    break;
+                case "o":
+                    input = convert.convertYamlToJson(input);
+            }
+        }
+        return input;
     }
 
     private static void deepCauseToSysErr(final String headerMessage, final Throwable e) {
@@ -91,16 +84,6 @@ public class yq implements QuarkusApplication {
                 t = t.getCause();
             }
         } while (t != null && t != t.getCause());
-    }
-
-    private InputStream applyQuery(final InputStream file, final String query) throws yqException {
-        try {
-            return yamlPath(query, file);
-        } catch (final JsonPathException e) {
-            throw new yqException("JsonPath can not be parsed.", e);
-        } catch (final Exception e) {
-            throw new yqException(e);
-        }
     }
 
     private InputStream setInputFile(final String fileName) throws yqException {
@@ -130,104 +113,5 @@ public class yq implements QuarkusApplication {
             throw new yqException(e);
         }
         return cmd;
-    }
-
-    public static InputStream convertYamlToJson(final InputStream yaml) throws yqException {
-        final ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
-        Object obj;
-        try {
-            obj = yamlReader.readValue(yaml, Object.class);
-            return objectToJsonInputStream(obj);
-        } catch (final JsonParseException e) {
-            throw new yqException("Can not parse YAML", e);
-        } catch (final JsonMappingException e) {
-            throw new yqException("Can not decode YAML", e);
-        } catch (final IOException e) {
-            throw new yqException("Can not read YAML", e);
-        }
-    }
-
-    private static InputStream objectToJsonInputStream(final Object obj) throws yqException {
-        final ObjectMapper jsonWriter = new ObjectMapper();
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            jsonWriter.writeValue(out, obj);
-        } catch (final JsonGenerationException e) {
-            throw new yqException("Can not generate JSON", e);
-        } catch (final JsonMappingException e) {
-            throw new yqException("Can not encode JSON", e);
-        } catch (final IOException e) {
-            throw new yqException("Can not write JSON", e);
-        }
-        final InputStream in = new ByteArrayInputStream(out.toByteArray());
-        return in;
-    }
-
-    private static InputStream objectToYamlInputStream(final Object obj) throws yqException {
-        final ObjectMapper yamlWriter = new YAMLMapper();
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            yamlWriter.writeValue(out, obj);
-        } catch (final JsonGenerationException e) {
-            throw new yqException("Can not generate YAML", e);
-        } catch (final JsonMappingException e) {
-            throw new yqException("Can not encode YAML", e);
-        } catch (final IOException e) {
-            throw new yqException("Can not write YAML", e);
-        }
-        final InputStream in = new ByteArrayInputStream(out.toByteArray());
-        return in;
-    }
-
-    public static InputStream convertJsonToYaml(final InputStream json) throws yqException {
-        final ObjectMapper jsonReader = new ObjectMapper(new JsonFactory());
-        Object obj;
-        try {
-            obj = jsonReader.readValue(json, Object.class);
-            return objectToYamlInputStream(obj);
-        } catch (final JsonParseException e) {
-            throw new yqException("Can not parse JSON", e);
-        } catch (final JsonMappingException e) {
-            throw new yqException("Can not decode JSON", e);
-        } catch (final IOException e) {
-            throw new yqException("Can not read JSON", e);
-        }
-    }
-
-    public static final InputStream jsonPath(final String jsonPath, final InputStream json) throws yqException {
-        Object obj;
-        try {
-            obj = JsonPath.read(json, jsonPath);
-            return objectToJsonInputStream(obj);
-        } catch (final IOException e) {
-            throw new yqException("Can not apply JsonPath",e);
-        }
-    }
-
-    public static final InputStream yamlPath(final String yamlPath, final InputStream yaml) throws yqException {
-        final InputStream json = convertYamlToJson(yaml);
-        final InputStream jsonResult = jsonPath(yamlPath, json);
-        final InputStream yamlResult = convertJsonToYaml(jsonResult);
-        return yamlResult;
-    }
-
-    static class yqException extends Exception {
-
-        /**
-         *
-         */
-        private static final long serialVersionUID = 1643405832912214952L;
-
-        public yqException(final Throwable cause) {
-            super(cause);
-        }
-
-        public yqException(final String message) {
-            super(message);
-        }
-
-        public yqException(final String message, final Throwable cause) {
-            super(message, cause);
-        }
     }
 }
