@@ -28,7 +28,7 @@ public class yqTest {
     @Test
     public void invalidJsonPath() {
         new yq().run("-f", "src/main/resources/application.properties", "-q",
-                "$.chapters[?is_compreview = true].chapter_word");
+                "not.json");
     }
 
 

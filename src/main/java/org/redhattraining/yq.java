@@ -48,7 +48,7 @@ public class yq implements QuarkusApplication {
             deepCauseToSysErr("Unable to process", e);
             return -1;
         }
-        
+
         try {
             input.transferTo(output);
             output.flush();
@@ -60,16 +60,32 @@ public class yq implements QuarkusApplication {
     }
 
     private InputStream applyOptions(CommandLine cmd, InputStream input) throws yqException {
+        Format actualFormat = Format.YAML;
         for (final Option option : cmd.getOptions()) {
             switch (option.getOpt()) {
                 case "f":
-                    input = setInputFile(option.getValue());
+                    input = setInput(option.getValue());
                     break;
                 case "q":
-                    input = yaml.yamlPath(option.getValue(), input);
-                    break;
+                    switch (actualFormat) {
+                        case YAML:
+                            input = convert.convertYamlToJson(input);
+                            actualFormat = Format.JSON;
+                            input = json.jsonPath(option.getValue(), input);
+                            break;
+                        case JSON:
+                            input = json.jsonPath(option.getValue(), input);
+                            break;
+                    }
                 case "o":
-                    input = convert.convertYamlToJson(input);
+                    if (actualFormat.equals(Format.YAML) && option.getValue().equalsIgnoreCase("json")) {
+                        input = convert.convertYamlToJson(input);
+                        actualFormat = Format.JSON;
+                    } else if (actualFormat.equals(Format.JSON) && option.getValue().equalsIgnoreCase("yaml")){
+                        input = convert.convertJsonToYaml(input);
+                        actualFormat = Format.YAML;
+                    }
+                    break;
             }
         }
         return input;
@@ -86,7 +102,7 @@ public class yq implements QuarkusApplication {
         } while (t != null && t != t.getCause());
     }
 
-    private InputStream setInputFile(final String fileName) throws yqException {
+    private InputStream setInput(final String fileName) throws yqException {
         final Path path = Paths.get(fileName);
         if (!path.toFile().exists()) {
             throw new yqException("File " + path.toAbsolutePath() + " does not exist");
@@ -101,8 +117,8 @@ public class yq implements QuarkusApplication {
     private CommandLine parseParams(final String... args) throws yqException {
         CommandLine cmd;
         final Options options = new Options();
-        options.addRequiredOption("f", "file", true, "The file to apply queries to.");
-        options.addRequiredOption("q", "query", true, "The jsonPath query");
+        options.addOption("f", "file", true, "The file to apply queries to.");
+        options.addOption("q", "query", true, "The jsonPath query");
         options.addOption("o", "output", true, "The output format (json or yaml)");
         try {
             final CommandLineParser parser = new DefaultParser();
@@ -113,5 +129,9 @@ public class yq implements QuarkusApplication {
             throw new yqException(e);
         }
         return cmd;
+    }
+
+    private enum Format {
+        YAML, JSON;
     }
 }

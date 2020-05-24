@@ -28,19 +28,4 @@ public class yaml {
         final InputStream in = new ByteArrayInputStream(out.toByteArray());
         return in;
     }
-
-    public static final InputStream yamlPath(final String yamlPath, final InputStream yaml) throws yqException {
-        try {
-            final InputStream json = convert.convertYamlToJson(yaml);
-            final InputStream jsonResult = org.redhattraining.json.jsonPath(yamlPath, json);
-            final InputStream yamlResult = convert.convertJsonToYaml(jsonResult);
-            return yamlResult;
-        } catch (final JsonPathException e) {
-            throw new yqException("JsonPath can not be parsed.", e);
-        } catch (final Exception e) {
-            throw new yqException(e);
-        }
-
-    }
-
 }
