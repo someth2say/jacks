@@ -11,13 +11,13 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
+import static org.redhattraining.convert.*;
 
 @QuarkusMain
 public class yq implements QuarkusApplication {
@@ -41,9 +41,9 @@ public class yq implements QuarkusApplication {
         }
 
         final OutputStream output = System.out;
-        InputStream input = System.in;
+        InputStream input;
         try {
-            input = applyOptions(cmd, input);
+            input = transform(cmd);
         } catch (final yqException e) {
             deepCauseToSysErr("Unable to process", e);
             return -1;
@@ -59,34 +59,73 @@ public class yq implements QuarkusApplication {
         return 0;
     }
 
-    private InputStream applyOptions(CommandLine cmd, InputStream input) throws yqException {
-        Format actualFormat = Format.YAML;
-        for (final Option option : cmd.getOptions()) {
-            switch (option.getOpt()) {
-                case "f":
-                    input = setInput(option.getValue());
+    static String convertStreamToString(java.io.InputStream is) {
+        try (java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A")) {
+            return s.hasNext() ? s.next() : "";
+        }
+    }
+
+    private InputStream transform(final CommandLine cmd) throws yqException {
+        Object currentObj = null;
+        final InputStream input = prepareInput(cmd);
+        Format initialFormat = null;
+        String rawContents = convertStreamToString(input);
+        for (FormatMapper mapper : mappers) {
+            try {
+                currentObj = mapper.stringToObject(rawContents);
+                initialFormat = mapper.getFormat();
+                break;
+            } catch (final yqException e) {
+                // ignore
+            }
+        }
+
+        if (currentObj == null) {
+            throw new yqException("Unable to infer input format");
+        }
+
+        currentObj = applyQueries(cmd, currentObj);
+
+        return transformOutput(cmd, currentObj, input, initialFormat);
+
+    }
+
+    private Object applyQueries(final CommandLine cmd, Object currentObj) throws yqException {
+        for (final String query : cmd.getOptionValues('q')) {
+            currentObj = jsonPath.jsonPath(query, currentObj);
+        }
+        return currentObj;
+    }
+
+    private InputStream transformOutput(final CommandLine cmd, final Object currentObj, InputStream input,
+            final Format initialFormat) throws yqException {
+        if (cmd.hasOption('o')) {
+            final String optionValue = cmd.getOptionValue('o');
+            if (optionValue.equalsIgnoreCase("json")) {
+                input = json.objectToInputStream(currentObj);
+            } else if (optionValue.equalsIgnoreCase("yaml")) {
+                input = yaml.objectToInputStream(currentObj);
+            }
+        } else {
+            // Return to original format
+            switch (initialFormat) {
+                case JSON:
+                    input = json.objectToInputStream(currentObj);
                     break;
-                case "q":
-                    switch (actualFormat) {
-                        case YAML:
-                            input = convert.convertYamlToJson(input);
-                            actualFormat = Format.JSON;
-                            input = json.jsonPath(option.getValue(), input);
-                            break;
-                        case JSON:
-                            input = json.jsonPath(option.getValue(), input);
-                            break;
-                    }
-                case "o":
-                    if (actualFormat.equals(Format.YAML) && option.getValue().equalsIgnoreCase("json")) {
-                        input = convert.convertYamlToJson(input);
-                        actualFormat = Format.JSON;
-                    } else if (actualFormat.equals(Format.JSON) && option.getValue().equalsIgnoreCase("yaml")){
-                        input = convert.convertJsonToYaml(input);
-                        actualFormat = Format.YAML;
-                    }
+                case YAML:
+                    input = yaml.objectToInputStream(currentObj);
                     break;
             }
+        }
+        return input;
+    }
+
+    private InputStream prepareInput(final CommandLine cmd) throws yqException {
+        InputStream input;
+        if (cmd.hasOption('f')) {
+            input = setInput(cmd.getOptionValue('f'));
+        } else {
+            input = System.in;
         }
         return input;
     }
@@ -124,14 +163,25 @@ public class yq implements QuarkusApplication {
             final CommandLineParser parser = new DefaultParser();
             cmd = parser.parse(options, args);
         } catch (final ParseException e) {
-            final HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp(args[0], options);
-            throw new yqException(e);
+            new HelpFormatter().printHelp("yq", options);
+            throw new yqException("Cannot parse parameters", e);
         }
-        return cmd;
-    }
 
-    private enum Format {
-        YAML, JSON;
+        if (!cmd.hasOption("q") && !cmd.hasOption("o")) {
+            new HelpFormatter().printHelp("yq", options);
+            throw new yqException("Either q(uery) or o(utput) parameters is required.");
+        }
+
+        if (cmd.hasOption('f') && cmd.getOptionValues("f").length > 1) {
+            new HelpFormatter().printHelp("yq", options);
+            throw new yqException("At most a single f(file) parameter is allowed.");
+        }
+
+        if (cmd.hasOption('o') && cmd.getOptionValues("o").length > 1) {
+            new HelpFormatter().printHelp("yq", options);
+            throw new yqException("At most a single o(utput) parameter is allowed.");
+        }
+
+        return cmd;
     }
 }

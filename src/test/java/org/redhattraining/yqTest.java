@@ -10,8 +10,15 @@ import io.quarkus.test.junit.QuarkusTest;
 public class yqTest {
 
     @Test
-    public void runTest() {
+    public void runTestYaml() {
         int exitcode = new yq().run("-f", "src/test/resources/dco.yml", "-q", "$.chapters[*].chapter_word");
+        assertEquals(0, exitcode, () -> "Basic run failed.");
+    }
+
+
+    @Test
+    public void runTestJson() {
+        int exitcode = new yq().run("-f", "src/test/resources/dco.json", "-q", "$.chapters[*].chapter_word");
         assertEquals(0, exitcode, () -> "Basic run failed.");
     }
 
