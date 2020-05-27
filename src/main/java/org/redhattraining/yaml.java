@@ -8,24 +8,23 @@ import java.io.InputStream;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
-public class yaml implements FormatMapper {
-    private ObjectMapper yamlMapper;
+public class Yaml implements FormatMapper {
+    private YAMLMapper yamlMapper;
 
-    public yaml(ObjectMapper yamlMapper) {
+    public Yaml(YAMLMapper yamlMapper) {
         this.yamlMapper=yamlMapper;
 	}
 
-    public yaml(){
+    public Yaml(){
         this(new YAMLMapper());
     }
     
 	public final InputStream objectToInputStream(final Object obj) throws yqException {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            yamlMapper.writeValue(out, obj);
+            yamlMapper.writerWithDefaultPrettyPrinter().writeValue(out, obj);
         } catch (final JsonGenerationException e) {
             throw new yqException("Can not generate YAML", e);
         } catch (final JsonMappingException e) {

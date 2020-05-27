@@ -8,17 +8,16 @@ import java.io.InputStream;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class json implements FormatMapper {
-	private ObjectMapper jsonMapper = new JsonMapper();
+public class Json implements FormatMapper {
+	private JsonMapper jsonMapper = new JsonMapper();
 
-	public json(ObjectMapper jsonMapper) {
+	public Json(JsonMapper jsonMapper) {
 		this.jsonMapper=jsonMapper;
 	}
 
-	public json(){
+	public Json(){
 		this(new JsonMapper());
 	}
 

@@ -28,6 +28,15 @@ public class yq implements QuarkusApplication {
     @ConfigProperty(name = "project.version")
     String projectVersion;
 
+    static final Options options = new Options();
+    static {
+        options.addOption("f", "file", true, "The file to apply queries to.");
+        options.addOption("q", "query", true, "The jsonPath query");
+        options.addOption("o", "output", true, "The output format (json or yaml)");
+        options.addOption("v", "version", false, "Displays the version and exits");
+        options.addOption("h", "help", false, "Displays this help message and exits");
+    }
+
     public static void main(final String... args) {
         try {
             Quarkus.run(yq.class, args);
@@ -52,6 +61,11 @@ public class yq implements QuarkusApplication {
             return 0;
         }
 
+        if (cmd.hasOption('h')){
+            printHelp();
+            return 0;
+        }
+
         final OutputStream output = System.out;
         InputStream input;
         try {
@@ -71,7 +85,7 @@ public class yq implements QuarkusApplication {
         return 0;
     }
 
-    static String convertStreamToString(java.io.InputStream is) {
+    static String convertStreamToString(final java.io.InputStream is) {
         try (java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A")) {
             return s.hasNext() ? s.next() : "";
         }
@@ -81,8 +95,8 @@ public class yq implements QuarkusApplication {
         Object currentObj = null;
         final InputStream input = prepareInput(cmd);
         Format initialFormat = null;
-        String rawContents = convertStreamToString(input);
-        for (FormatMapper mapper : mappers) {
+        final String rawContents = convertStreamToString(input);
+        for (final FormatMapper mapper : mappers) {
             try {
                 currentObj = mapper.stringToObject(rawContents);
                 initialFormat = mapper.getFormat();
@@ -103,8 +117,10 @@ public class yq implements QuarkusApplication {
     }
 
     private Object applyQueries(final CommandLine cmd, Object currentObj) throws yqException {
-        for (final String query : cmd.getOptionValues('q')) {
-            currentObj = jsonPath.query(query, currentObj);
+        if (cmd.getOptionValues('q') != null) {
+            for (final String query : cmd.getOptionValues('q')) {
+                currentObj = jsonPath.query(query, currentObj);
+            }
         }
         return currentObj;
     }
@@ -167,29 +183,34 @@ public class yq implements QuarkusApplication {
 
     private CommandLine parseParams(final String... args) throws yqException {
         CommandLine cmd;
-        final Options options = new Options();
-        options.addOption("f", "file", true, "The file to apply queries to.");
-        options.addOption("q", "query", true, "The jsonPath query");
-        options.addOption("o", "output", true, "The output format (json or yaml)");
-        options.addOption("v", "version", false, "Displays the version and exits");
+
         try {
             final CommandLineParser parser = new DefaultParser();
             cmd = parser.parse(options, args);
         } catch (final ParseException e) {
-            new HelpFormatter().printHelp(projectName, options);
+            printHelp();
             throw new yqException("Cannot parse parameters", e);
         }
-
+        
         if (cmd.hasOption('f') && cmd.getOptionValues("f").length > 1) {
-            new HelpFormatter().printHelp(projectName, options);
+            printHelp();
             throw new yqException("At most a single f(file) parameter is allowed.");
         }
 
         if (cmd.hasOption('o') && cmd.getOptionValues("o").length > 1) {
-            new HelpFormatter().printHelp(projectName, options);
+            printHelp();
             throw new yqException("At most a single o(utput) parameter is allowed.");
         }
 
         return cmd;
+    }
+
+    private void printHelp() {
+        new HelpFormatter().printHelp(projectName
+                + " [-f FILENAME] [-q QUERY]* [-o OUTPUT]",
+         "Reads JSON and YAML files and apply JsonPath queries to them.", 
+         options, 
+         "If no filename provided, standard input is used (^D to terminate).\n"
+                + "If no output is provided, the output format is kept.");
     }
 }

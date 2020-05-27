@@ -14,7 +14,7 @@ public class jsonTest {
 
     @Test
     public void transformTest() throws yqException {
-        json json = new json();
+        Json json = new Json();
         String jsonString = "{\n  \"name\" : \"value\"\n}";
         InputStream is = new ByteArrayInputStream(jsonString.getBytes());
         Object jsonObject = json.inputStreamToObject(is);

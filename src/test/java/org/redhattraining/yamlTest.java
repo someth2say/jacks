@@ -13,7 +13,7 @@ import io.quarkus.test.junit.QuarkusTest;
 public class yamlTest {
     @Test
     public void transformTest() throws yqException {
-        yaml yaml = new yaml();
+        Yaml yaml = new Yaml();
         String yamlString = "---\nname: \"value\"\n";
         InputStream is = new ByteArrayInputStream(yamlString.getBytes());
         Object yamlObject = yaml.inputStreamToObject(is);

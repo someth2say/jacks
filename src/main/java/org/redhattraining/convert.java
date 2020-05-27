@@ -5,23 +5,22 @@ import java.io.InputStream;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 public class convert {
-	private static final ObjectMapper jsonReader = new JsonMapper();
-	private static final ObjectMapper yamlReader = new YAMLMapper();
+	private static final JsonMapper jsonMapper = new JsonMapper();
+	private static final YAMLMapper yamlMapper = new YAMLMapper();
 
-	static yaml yaml = new yaml(yamlReader);
-	static json json = new json(jsonReader);
+	static Yaml yaml = new Yaml(yamlMapper);
+	static Json json = new Json(jsonMapper);
 
 	static final FormatMapper[] mappers = {json, yaml};
 
 	public static final InputStream convertJsonToYaml(final InputStream json) throws yqException {
 		Object obj;
 		try {
-			obj = jsonReader.readValue(json, Object.class);
+			obj = jsonMapper.readValue(json, Object.class);
 			return yaml.objectToInputStream(obj);
 		} catch (final JsonParseException e) {
 			throw new yqException("Can not parse JSON", e);
@@ -35,7 +34,7 @@ public class convert {
 	public static final InputStream convertYamlToJson(final InputStream yaml) throws yqException {
 		Object obj;
 		try {
-			obj = yamlReader.readValue(yaml, Object.class);
+			obj = yamlMapper.readValue(yaml, Object.class);
 			return json.objectToInputStream(obj);
 		} catch (final JsonParseException e) {
 			throw new yqException("Can not parse YAML", e);
