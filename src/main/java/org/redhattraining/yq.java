@@ -13,6 +13,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
@@ -21,6 +22,12 @@ import static org.redhattraining.convert.*;
 
 @QuarkusMain
 public class yq implements QuarkusApplication {
+    @ConfigProperty(name = "project.name")
+    String projectName;
+
+    @ConfigProperty(name = "project.version")
+    String projectVersion;
+
     public static void main(final String... args) {
         try {
             Quarkus.run(yq.class, args);
@@ -38,6 +45,11 @@ public class yq implements QuarkusApplication {
         } catch (final yqException e) {
             deepCauseToSysErr("Unable to parse parameters", e);
             return -1;
+        }
+
+        if (cmd.hasOption("v")) {
+            System.out.println(projectVersion);
+            return 0;
         }
 
         final OutputStream output = System.out;
@@ -159,26 +171,22 @@ public class yq implements QuarkusApplication {
         options.addOption("f", "file", true, "The file to apply queries to.");
         options.addOption("q", "query", true, "The jsonPath query");
         options.addOption("o", "output", true, "The output format (json or yaml)");
+        options.addOption("v", "version", false, "Displays the version and exits");
         try {
             final CommandLineParser parser = new DefaultParser();
             cmd = parser.parse(options, args);
         } catch (final ParseException e) {
-            new HelpFormatter().printHelp("yq", options);
+            new HelpFormatter().printHelp(projectName, options);
             throw new yqException("Cannot parse parameters", e);
         }
 
-        if (!cmd.hasOption("q") && !cmd.hasOption("o")) {
-            new HelpFormatter().printHelp("yq", options);
-            throw new yqException("Either q(uery) or o(utput) parameters is required.");
-        }
-
         if (cmd.hasOption('f') && cmd.getOptionValues("f").length > 1) {
-            new HelpFormatter().printHelp("yq", options);
+            new HelpFormatter().printHelp(projectName, options);
             throw new yqException("At most a single f(file) parameter is allowed.");
         }
 
         if (cmd.hasOption('o') && cmd.getOptionValues("o").length > 1) {
-            new HelpFormatter().printHelp("yq", options);
+            new HelpFormatter().printHelp(projectName, options);
             throw new yqException("At most a single o(utput) parameter is allowed.");
         }
 
