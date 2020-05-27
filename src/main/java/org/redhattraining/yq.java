@@ -92,7 +92,7 @@ public class yq implements QuarkusApplication {
 
     private Object applyQueries(final CommandLine cmd, Object currentObj) throws yqException {
         for (final String query : cmd.getOptionValues('q')) {
-            currentObj = jsonPath.jsonPath(query, currentObj);
+            currentObj = jsonPath.query(query, currentObj);
         }
         return currentObj;
     }
