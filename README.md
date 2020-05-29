@@ -9,34 +9,75 @@ But the main target of this tool are yaml files.
 
 This tool allows users to apply [`JSONPath`](https://goessner.net/articles/JsonPath/) queries to yaml files. Colaterally this tool allow seamless conversion between `json` and `yaml` files.
 
+## Usage
 
-# Quarkus
+`yq [-f(ile) <filename>] [-q(uery) <jsonpath>] [-o(utput) <json|yaml>]`
+
+|               |              |
+| :------------ | :----------  |
+| f(ile)        | Relative or absolute path for the input file. Currently accepted formats are JSON and YAML. Format is detected by trying to parse de file, not by extension. If this parameter is ommited, standard input is used (press ^D to finish).   |
+| q(uery)       | JsonPath query to apply. This can be provided multiple times, so queries are applied to previous query result.  |
+| o(utput)      | Format of the output. Currently accepted formats are JSON and YAML |
+
+## Examples
+* Tranforming yaml to json
+```
+$ yq -o json
+format: yaml
+^D
+{
+  "format" : "yaml"
+}                   
+```
+
+* Simple query
+```
+$ yq -q "$.name"
+name: yq
+version: 1.0
+^D
+--- "yq"
+```
+
+* Reading from files
+```
+$ yq -f menu.yaml -q "$.menu.id"
+---
+menuitem:
+- value: "New"
+  onclick: "CreateNewDoc()"
+- value: "Open"
+  onclick: "OpenDoc()"
+- value: "Close"
+  onclick: "CloseDoc()"
+  ```
+
+This is equivalent to redirecting the input:
+```
+$ yq -q "$.menu.id" < menu.yaml
+---
+menuitem:
+- value: "New"
+...
+```
+
+Also equivalent to using pipes:
+```
+$ cat menu.yaml | yq -q "$.menu.id"
+---
+menuitem:
+- value: "New"
+...
+```
+
+Indeed, you can also pipe the output:
+```
+$ yq -f menu.yaml -o json > menu.json
+````
+
+
+## Quarkus
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
-
-## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
-```
-./mvnw quarkus:dev
-```
-
-## Packaging and running the application
-
-The application can be packaged using `./mvnw package`.
-It produces the `yq-1.0.0-SNAPSHOT-runner.jar` file in the `/target` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/lib` directory.
-
-The application is now runnable using `java -jar target/yq-1.0.0-SNAPSHOT-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using: `./mvnw package -Pnative`.
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: `./mvnw package -Pnative -Dquarkus.native.container-build=true`.
-
-You can then execute your native executable with: `./target/yq-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
