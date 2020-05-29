@@ -1,4 +1,6 @@
-package org.redhattraining;
+package org.someth2say;
+
+import static org.someth2say.convert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +20,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
-import static org.redhattraining.convert.*;
 
 @QuarkusMain
 public class yq implements QuarkusApplication {

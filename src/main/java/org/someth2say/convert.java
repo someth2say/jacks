@@ -1,4 +1,4 @@
-package org.redhattraining;
+package org.someth2say;
 
 import java.io.IOException;
 import java.io.InputStream;

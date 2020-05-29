@@ -1,4 +1,4 @@
-package org.redhattraining;
+package org.someth2say;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -11,14 +11,14 @@ public class yqTest {
 
     @Test
     public void runTestYaml() {
-        int exitcode = new yq().run("-f", "src/test/resources/dco.yml", "-q", "$.chapters[*].chapter_word");
+        int exitcode = new yq().run("-f", "src/test/resources/menu.yaml", "-q", "$.menu.popup.menuitem[*].value");
         assertEquals(0, exitcode, () -> "Basic run failed.");
     }
 
 
     @Test
     public void runTestJson() {
-        int exitcode = new yq().run("-f", "src/test/resources/dco.json", "-q", "$.chapters[*].chapter_word");
+        int exitcode = new yq().run("-f", "src/test/resources/menu.json", "-q", "$.menu.popup.menuitem[*].value");
         assertEquals(0, exitcode, () -> "Basic run failed.");
     }
 

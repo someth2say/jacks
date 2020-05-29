@@ -1,4 +1,4 @@
-package org.redhattraining;
+package org.someth2say;
 
 public class yqException extends Exception {
 

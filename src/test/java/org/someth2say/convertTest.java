@@ -1,7 +1,10 @@
-package org.redhattraining;
+package org.someth2say;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.redhattraining.convert.*;
+import static org.someth2say.convert.convertJsonToYaml;
+import static org.someth2say.convert.convertYamlToJson;
+import static org.someth2say.convert.json;
+import static org.someth2say.convert.yaml;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +21,7 @@ public class convertTest {
     @Test
     public void yamlToJsonToYaml() throws IOException, yqException {
         final Object yamlObj = yaml
-                .inputStreamToObject(Files.newInputStream(Paths.get("src/test/resources/dco.yml")));
+                .inputStreamToObject(Files.newInputStream(Paths.get("src/test/resources/menu.yaml")));
         final InputStream yamlIs = yaml.objectToInputStream(yamlObj);
         final InputStream jsonIs = convertYamlToJson(yamlIs);
         Object jsonObj = json.inputStreamToObject(jsonIs);
@@ -29,7 +32,7 @@ public class convertTest {
     @Test
     public void yamlTomlToJson() throws IOException, yqException {
         final Object jsonObj = json
-                .inputStreamToObject(Files.newInputStream(Paths.get("src/test/resources/dco.json")));
+                .inputStreamToObject(Files.newInputStream(Paths.get("src/test/resources/menu.json")));
         final InputStream jsonIs = json.objectToInputStream(jsonObj);
         final InputStream yamlIs = convertJsonToYaml(jsonIs);
         Object yamlObj = yaml.inputStreamToObject(yamlIs);

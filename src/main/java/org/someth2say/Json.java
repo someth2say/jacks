@@ -1,4 +1,4 @@
-package org.redhattraining;
+package org.someth2say;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

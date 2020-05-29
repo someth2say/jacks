@@ -1,4 +1,4 @@
-package org.redhattraining;
+package org.someth2say;
 
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;

@@ -1,4 +1,4 @@
-package org.redhattraining;
+package org.someth2say;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
