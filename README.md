@@ -1,5 +1,17 @@
 # yq project
 
+![](logo.png)
+
+Yaml files became pretty popular, mainly because they are the main language used for popular tools like Kubernetes or Ansible.
+
+This project is inpired by the [`jq`](https://stedolan.github.io/jq/) tool as a CLI tool for parsing json files.
+But the main target of this tool are yaml files.
+
+This tool allows users to apply [`JSONPath`](https://goessner.net/articles/JsonPath/) queries to yaml files. Colaterally this tool allow seamless conversion between `json` and `yaml` files.
+
+
+# Quarkus
+
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
