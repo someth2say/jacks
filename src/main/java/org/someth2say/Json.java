@@ -36,9 +36,16 @@ public class Json implements FormatMapper {
 		return in;
 	}
 
+	@Override
 	public final Object inputStreamToObject(final InputStream json) throws yqException {
+		Class<Object> valueType = Object.class;
+		return inputStreamToObject(json, valueType);
+	}
+
+	@Override
+	public <T> T inputStreamToObject(final InputStream json, Class<T> valueType) throws yqException {
 		try {
-			return jsonMapper.readValue(json, Object.class);
+			return jsonMapper.readValue(json, valueType);
 		} catch (JsonParseException e) {
 			throw new yqException("Can not parse JSON", e);
 		} catch (JsonMappingException e) {
@@ -50,8 +57,12 @@ public class Json implements FormatMapper {
 
 	@Override
 	public Object stringToObject(String json) throws yqException {
+		return stringToObject(json, Object.class);
+	}
+
+	public <T> T stringToObject(String json, Class<T> valueType) throws yqException {
 		try {
-			return jsonMapper.readValue(json, Object.class);
+			return jsonMapper.readValue(json, valueType);
 		} catch (JsonParseException e) {
 			throw new yqException("Can not parse JSON", e);
 		} catch (JsonMappingException e) {

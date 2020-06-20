@@ -37,8 +37,14 @@ public class Yaml implements FormatMapper {
     }
 
     public final Object inputStreamToObject(final InputStream json) throws yqException {
+        Class<Object> valueType = Object.class;
+        return inputStreamToObject(json, valueType);
+    }
+
+    @Override
+    public <T> T inputStreamToObject(final InputStream json, Class<T> valueType) throws yqException {
         try {
-            return yamlMapper.readValue(json, Object.class);
+            return yamlMapper.readValue(json, valueType);
         } catch (JsonParseException e) {
             throw new yqException("Can not parse YAML", e);
         } catch (JsonMappingException e) {
@@ -50,8 +56,14 @@ public class Yaml implements FormatMapper {
 
     @Override
     public Object stringToObject(String yaml) throws yqException {
+        Class<Object> valueType = Object.class;
+        return stringToObject(yaml, valueType);
+    }
+
+    @Override
+    public <T> T stringToObject(String yaml, Class<T> valueType) throws yqException {
         try {
-            return yamlMapper.readValue(yaml, Object.class);
+            return yamlMapper.readValue(yaml, valueType);
         } catch (JsonParseException e) {
             throw new yqException("Can not parse YAML", e);
         } catch (JsonMappingException e) {
