@@ -1,0 +1,8 @@
+menu.id=file
+menu.value=File
+menu.popup.menuitem.1.value=New
+menu.popup.menuitem.1.onclick=CreateNewDoc()
+menu.popup.menuitem.2.value=Open
+menu.popup.menuitem.2.onclick=OpenDoc()
+menu.popup.menuitem.3.value=Close
+menu.popup.menuitem.3.onclick=CloseDoc()

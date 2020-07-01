@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.junit.jupiter.api.Test;
+import org.someth2say.formats.Json;
 
 import io.quarkus.test.junit.QuarkusTest;
 

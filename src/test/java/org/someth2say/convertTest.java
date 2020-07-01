@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
+import org.someth2say.formats.Format;
 
 import io.quarkus.test.junit.QuarkusTest;
 

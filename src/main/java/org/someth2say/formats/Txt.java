@@ -1,4 +1,4 @@
-package org.someth2say;
+package org.someth2say.formats;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -8,11 +8,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
+import org.someth2say.yqException;
+
 import net.minidev.json.JSONArray;
 
-public class Plain implements FormatMapper {
+public class Txt implements FormatMapper {
 
-    public Plain(){
+    public Txt(){
     }
     
 	public final InputStream objectToInputStream(final Object obj) throws yqException {

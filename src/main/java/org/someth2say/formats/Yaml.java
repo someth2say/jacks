@@ -1,4 +1,4 @@
-package org.someth2say;
+package org.someth2say.formats;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+
+import org.someth2say.yqException;
 
 public class Yaml implements FormatMapper {
     public YAMLMapper yamlMapper;

@@ -1,6 +1,8 @@
-package org.someth2say;
+package org.someth2say.formats;
 
 import java.io.InputStream;
+
+import org.someth2say.yqException;
 
 public interface FormatMapper {
     InputStream objectToInputStream(final Object obj) throws yqException;

@@ -14,7 +14,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.someth2say.formats.Format;
 
+import io.quarkus.launcher.shaded.org.apache.commons.io.FilenameUtils;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
@@ -62,7 +64,7 @@ public class yq implements QuarkusApplication {
             return 0;
         }
 
-        if (cmd.hasOption('h')){
+        if (cmd.hasOption('h')) {
             printHelp();
             return 0;
         }
@@ -92,40 +94,86 @@ public class yq implements QuarkusApplication {
         }
     }
 
-    private InputStream transform(final CommandLine cmd) throws yqException {
-        Object currentObj = null;
-        final InputStream input = prepareInput(cmd);
+    private static class TransformationStatus {
         Format initialFormat = null;
+        Object currentObj = null;
+    }
+
+    private InputStream transform(final CommandLine cmd) throws yqException {
+        final InputStream input = prepareInput(cmd);
+
         final String rawContents = convertStreamToString(input);
 
-        if (cmd.hasOption('i')) {
-            final String optionValue = cmd.getOptionValue('i');
-            try {
-                initialFormat=Format.valueOf(optionValue.toUpperCase());
-                currentObj = initialFormat.mapper.stringToObject(rawContents);
-            } catch (IllegalArgumentException e) {
-                throw new yqException("Illegal format: "+optionValue, e);
-            }
-        } else {
-            for (Format format : Format.values()){
-                try {
-                    currentObj = format.mapper.stringToObject(rawContents);
-                    initialFormat = format;
-                    break;
-                } catch (final yqException e) {
-                    // ignore
-                }
-            }
+        TransformationStatus status = computeInitialStatus(cmd, rawContents);
+
+        status.currentObj = applyQueries(cmd, status.currentObj);
+
+        return transformOutput(cmd, status);
+
+    }
+
+    private TransformationStatus computeInitialStatus(final CommandLine cmd, final String rawContents)
+            throws yqException {
+        TransformationStatus status = new TransformationStatus();
+
+        status.initialFormat = inferFormatFromCommandLine(cmd);
+
+        if (status.initialFormat == null) {
+            status.initialFormat = inferFormatFromFilename(cmd);
         }
 
-        if (currentObj == null) {
+        if (status.initialFormat == null) {
+            status.initialFormat = inferFormatFromContent(rawContents, status);
+        }
+
+        if (status.initialFormat != null) {
+            if (status.currentObj == null) {
+                status.currentObj = status.initialFormat.mapper.stringToObject(rawContents);
+            }
+        } else {
             throw new yqException("Unable to infer input format");
         }
 
-        currentObj = applyQueries(cmd, currentObj);
+        return status;
+    }
 
-        return transformOutput(cmd, currentObj, input, initialFormat);
+    private Format inferFormatFromCommandLine(final CommandLine cmd) throws yqException {
+        if (cmd.hasOption('i')) {
+            final String optionValue = cmd.getOptionValue('i');
+            try {
+                return Format.valueOf(optionValue.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new yqException("Illegal format: " + optionValue, e);
+            }
+        }
+        return null;
+    }
 
+    private Format inferFormatFromFilename(CommandLine cmd) {
+        if (cmd.hasOption("f")) {
+            String extension = FilenameUtils.getExtension(cmd.getOptionValue("f"));
+            for (Format format : Format.values()) {
+                for (String formatExtension : format.extensions) {
+                    if (formatExtension.equalsIgnoreCase(extension)) {
+                        return format;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private Format inferFormatFromContent(final String rawContents, TransformationStatus status) {
+        for (Format format : Format.values()) {
+            try {
+                status.currentObj = format.mapper.stringToObject(rawContents);
+                status.initialFormat = format;
+                return format;
+            } catch (final yqException e) {
+                // ignore
+            }
+        }
+        return null;
     }
 
     private Object applyQueries(final CommandLine cmd, Object currentObj) throws yqException {
@@ -137,23 +185,20 @@ public class yq implements QuarkusApplication {
         return currentObj;
     }
 
-    private InputStream transformOutput(final CommandLine cmd, final Object currentObj, InputStream input,
-            final Format initialFormat) throws yqException {
+    private InputStream transformOutput(final CommandLine cmd, final TransformationStatus status) throws yqException {
 
-                
-        Format targetFormat = initialFormat;
+        Format targetFormat = status.initialFormat;
 
         if (cmd.hasOption('o')) {
             final String optionValue = cmd.getOptionValue('o');
             try {
-                targetFormat=Format.valueOf(optionValue.toUpperCase());
+                targetFormat = Format.valueOf(optionValue.toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new yqException("Illegal format: "+optionValue, e);
+                throw new yqException("Illegal format: " + optionValue, e);
             }
         }
 
-        input = targetFormat.mapper.objectToInputStream(currentObj);
-        return input;
+        return targetFormat.mapper.objectToInputStream(status.currentObj);
     }
 
     private InputStream prepareInput(final CommandLine cmd) throws yqException {
@@ -199,7 +244,7 @@ public class yq implements QuarkusApplication {
             printHelp();
             throw new yqException("Cannot parse parameters", e);
         }
-        
+
         if (cmd.hasOption('f') && cmd.getOptionValues("f").length > 1) {
             printHelp();
             throw new yqException("At most a single f(file) parameter is allowed.");
@@ -214,11 +259,9 @@ public class yq implements QuarkusApplication {
     }
 
     private void printHelp() {
-        new HelpFormatter().printHelp(projectName
-                + " [-f FILENAME] [-q QUERY]* [-o OUTPUT]",
-         "Reads JSON and YAML files and apply JsonPath queries to them.", 
-         options, 
-         "If no filename provided, standard input is used (^D to terminate).\n"
-                + "If no output is provided, the output format is kept.");
+        new HelpFormatter().printHelp(projectName + " [-f FILENAME] [-q QUERY]* [-o OUTPUT]",
+                "Reads JSON and YAML files and apply JsonPath queries to them.", options,
+                "If no filename provided, standard input is used (^D to terminate).\n"
+                        + "If no output is provided, the output format is kept.");
     }
 }

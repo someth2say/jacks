@@ -9,6 +9,8 @@ import java.io.PrintStream;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.someth2say.formats.Json;
+import org.someth2say.formats.Yaml;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -20,7 +22,7 @@ public class yqTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        int exitcode = new yq().run("-f", "src/test/resources/menu.yaml", "-q", "$.menu.popup.menuitem[*].value");
+        int exitcode = new yq().run("-f", "src/test/resources/menu.yaml","-i","yaml", "-q", "$.menu.popup.menuitem[*].value");
         assertEquals(0, exitcode, () -> "Basic YAML run failed.");
 
         List<?> list = new Yaml().stringToObject(baos.toString(), List.class);
@@ -45,7 +47,7 @@ public class yqTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        int exitcode = new yq().run("-f", "./src/test/resources/menuItems.txt","-i","plain","-o","json");
+        int exitcode = new yq().run("-f", "./src/test/resources/menuItems.txt","-i","txt","-o","json");
         assertEquals(0, exitcode, () -> "Basic PLAIN run failed.");
 
         String plainOutput = baos.toString();

@@ -1,6 +1,7 @@
 package org.someth2say;
 
 import java.io.InputStream;
+import org.someth2say.formats.*;
 
 public class convert {
 	public static final InputStream convertJsonToYaml(final InputStream json) throws yqException {

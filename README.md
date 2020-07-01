@@ -11,13 +11,26 @@ This tool allows users to apply [`JSONPath`](https://goessner.net/articles/JsonP
 
 ## Usage
 
-`yq [-f(ile) <filename>] [-q(uery) <jsonpath>] [-o(utput) <json|yaml>]`
+`yq [-f(ile) <filename>] [-q(uery) <jsonpath>] [-i(nput) <format>] [-o(utput) <format>]`
 
 |               |              |
 | :------------ | :----------  |
 | f(ile)        | Relative or absolute path for the input file. Currently accepted formats are JSON and YAML. Format is detected by trying to parse de file, not by extension. If this parameter is ommited, standard input is used (press ^D to finish).   |
 | q(uery)       | JsonPath query to apply. This can be provided multiple times, so queries are applied to previous query result.  |
-| o(utput)      | Format of the output. Currently accepted formats are JSON and YAML |
+| i(nput)       | Expected input format. If present, overrides format autodetection 
+| o(utput)      | Format of the output. If ommited, output will retain the same format as the input|
+
+## Formats
+
+Currently supported formats are:
+
+- YAML
+- JSON
+- TXT
+
+TXT format only for encondes arrays, not hierarchical structures. Each array element is just an string. Array elements are separated by a line break (system dependant).
+
+
 
 ## Examples
 * Tranforming yaml to json
