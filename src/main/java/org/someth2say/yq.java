@@ -120,7 +120,7 @@ public class yq implements QuarkusApplication {
     private Object applyQueries(final CommandLine cmd, Object currentObj) throws yqException {
         if (cmd.getOptionValues('q') != null) {
             for (final String query : cmd.getOptionValues('q')) {
-                currentObj = jsonPath.query(query, currentObj);
+                currentObj = JsonPath.query(query, currentObj);
             }
         }
         return currentObj;
@@ -128,24 +128,30 @@ public class yq implements QuarkusApplication {
 
     private InputStream transformOutput(final CommandLine cmd, final Object currentObj, InputStream input,
             final Format initialFormat) throws yqException {
+
+                
+        Format targetFormat = initialFormat;
+
         if (cmd.hasOption('o')) {
             final String optionValue = cmd.getOptionValue('o');
-            if (optionValue.equalsIgnoreCase("json")) {
-                input = json.objectToInputStream(currentObj);
-            } else if (optionValue.equalsIgnoreCase("yaml")) {
-                input = yaml.objectToInputStream(currentObj);
-            }
-        } else {
-            // Return to original format
-            switch (initialFormat) {
-                case JSON:
-                    input = json.objectToInputStream(currentObj);
-                    break;
-                case YAML:
-                    input = yaml.objectToInputStream(currentObj);
-                    break;
+            try {
+                targetFormat=Format.valueOf(optionValue.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new yqException(e);
             }
         }
+
+        switch (targetFormat) {
+            case JSON:
+                input = json.objectToInputStream(currentObj);
+                break;
+            case YAML:
+                input = yaml.objectToInputStream(currentObj);
+                break;
+            case PLAIN:
+                input = plain.objectToInputStream(currentObj);
+        }
+
         return input;
     }
 

@@ -14,6 +14,7 @@ public class convert {
 
 	static Yaml yaml = new Yaml(yamlMapper);
 	static Json json = new Json(jsonMapper);
+	static Plain plain = new Plain();
 
 	static final FormatMapper[] mappers = {json, yaml};
 
