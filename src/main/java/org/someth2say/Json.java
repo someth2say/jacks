@@ -11,7 +11,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class Json implements FormatMapper {
-	private JsonMapper jsonMapper = new JsonMapper();
+	public JsonMapper jsonMapper = new JsonMapper();
+
 
 	public Json(JsonMapper jsonMapper) {
 		this.jsonMapper=jsonMapper;
@@ -70,9 +71,5 @@ public class Json implements FormatMapper {
 		} catch (IOException e) {
 			throw new yqException("Can not read JSON", e);
 		}
-	}
-
-	public final Format getFormat(){
-		return Format.JSON;
 	}
 }

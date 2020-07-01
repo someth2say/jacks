@@ -9,9 +9,8 @@ public interface FormatMapper {
 
     <T> T inputStreamToObject(final InputStream json, Class<T> valueType) throws yqException;
 
-    Format getFormat();
-
     Object stringToObject(String rawContents) throws yqException;
     
-	<T> T stringToObject(String rawContents, Class<T> valueType) throws yqException;
+    <T> T stringToObject(String rawContents, Class<T> valueType) throws yqException;
+    
 }

@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
@@ -38,5 +39,19 @@ public class plainTest {
         assertTrue(newPlainString.contains("Open"));
         assertTrue(newPlainString.contains("Close"));
     }
+
+    @Test
+    public void deserializeTest() throws yqException, IOException {
+        Path path= Paths.get("src/main/resources/application.properties");
+        InputStream newInputStream = Files.newInputStream(path);
+        final Object plainObj = new Plain().inputStreamToObject(newInputStream);
+        InputStream plainIs = new Plain().objectToInputStream(plainObj);
+        String newPlainString = yq.convertStreamToString(plainIs);
+
+        byte[] readAllBytes = Files.readAllBytes(path);
+        assertEquals(newPlainString+System.lineSeparator(), new String(readAllBytes), ()->"Transforming plain to plain should be the same.");
+        
+    }
+
 
 }

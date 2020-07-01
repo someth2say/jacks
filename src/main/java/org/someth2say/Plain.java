@@ -16,16 +16,18 @@ public class Plain implements FormatMapper {
     }
     
 	public final InputStream objectToInputStream(final Object obj) throws yqException {
-        if (obj instanceof JSONArray) {
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-            JSONArray jsonarray = (JSONArray) obj;
-            String stringArray = jsonarray.stream().map(Object::toString).collect(Collectors.joining(System.lineSeparator()));
-            out.writeBytes(stringArray.getBytes());
-            return new ByteArrayInputStream(out.toByteArray());
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        String stringArray ;
+        if (obj instanceof String) {
+            stringArray = (String) obj;
+        } else if (obj instanceof JSONArray) {
+            stringArray = ((JSONArray) obj).stream().map(Object::toString).collect(Collectors.joining(System.lineSeparator()));
         } else {
-            throw new yqException("Only Array objects can be serialized to plain format.");
-        }        
+            throw new yqException("Only Array objects can be serialized to plain format (type is "+obj.getClass().getSimpleName()+")");
+        }  
+        
+        out.writeBytes(stringArray.getBytes());
+        return new ByteArrayInputStream(out.toByteArray());
     }
 
     public final Object inputStreamToObject(final InputStream plain) throws yqException {
@@ -65,9 +67,5 @@ public class Plain implements FormatMapper {
     public <T> T stringToObject(String plain, Class<T> valueType) throws yqException {
         return inputStreamToObject(new ByteArrayInputStream(plain.getBytes()), valueType);
     }
-
-    public final Format getFormat(){
-		return Format.PLAIN;
-	}
 
 }

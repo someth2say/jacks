@@ -35,7 +35,8 @@ public class yqTest {
         int exitcode = new yq().run("-f", "src/test/resources/menu.json", "-q", "$.menu.popup.menuitem[*].value");
         assertEquals(0, exitcode, () -> "Basic run failed.");
 
-        List<?> list = new Json().stringToObject(baos.toString(), List.class);
+        String jsonOutput = baos.toString();
+        List<?> list = new Json().stringToObject(jsonOutput, List.class);
         assertTrue(list.containsAll(List.of("New","Open","Close")),()->"JsonPath results on json file unexpected");
     }
 
@@ -55,5 +56,11 @@ public class yqTest {
     public void invalidJsonPath() {
         int run = new yq().run("-f", "src/main/resources/application.properties", "-q","not.json");
         assertNotEquals(0, run, ()->"Unparseable JsonPath should return non-zero");
+    }
+
+    @Test
+    public void planOutput() {
+        int run = new yq().run("-f", "src/main/resources/application.properties", "-o","plain");
+        assertEquals(0, run, ()->"Unparseable JsonPath should return non-zero");
     }
 }

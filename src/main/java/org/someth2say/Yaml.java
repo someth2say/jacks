@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 public class Yaml implements FormatMapper {
-    private YAMLMapper yamlMapper;
+    public YAMLMapper yamlMapper;
 
     public Yaml(YAMLMapper yamlMapper) {
         this.yamlMapper=yamlMapper;
@@ -72,10 +72,5 @@ public class Yaml implements FormatMapper {
             throw new yqException("Can not read YAML", e);
         }
     }
-
-    public final Format getFormat(){
-		return Format.YAML;
-	}
-
 
 }

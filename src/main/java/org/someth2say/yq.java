@@ -1,7 +1,5 @@
 package org.someth2say;
 
-import static org.someth2say.convert.*;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,9 +31,11 @@ public class yq implements QuarkusApplication {
     static {
         options.addOption("f", "file", true, "The file to apply queries to.");
         options.addOption("q", "query", true, "The jsonPath query");
+        options.addOption("i", "input", true, "Force the input format (disables autodetection)");
         options.addOption("o", "output", true, "The output format (json or yaml)");
         options.addOption("v", "version", false, "Displays the version and exits");
         options.addOption("h", "help", false, "Displays this help message and exits");
+
     }
 
     public static void main(final String... args) {
@@ -97,13 +97,24 @@ public class yq implements QuarkusApplication {
         final InputStream input = prepareInput(cmd);
         Format initialFormat = null;
         final String rawContents = convertStreamToString(input);
-        for (final FormatMapper mapper : mappers) {
+
+        if (cmd.hasOption('i')) {
+            final String optionValue = cmd.getOptionValue('i');
             try {
-                currentObj = mapper.stringToObject(rawContents);
-                initialFormat = mapper.getFormat();
-                break;
-            } catch (final yqException e) {
-                // ignore
+                initialFormat=Format.valueOf(optionValue.toUpperCase());
+                currentObj = initialFormat.mapper.stringToObject(rawContents);
+            } catch (IllegalArgumentException e) {
+                throw new yqException("Illegal format: "+optionValue, e);
+            }
+        } else {
+            for (Format format : Format.values()){
+                try {
+                    currentObj = format.mapper.stringToObject(rawContents);
+                    initialFormat = format;
+                    break;
+                } catch (final yqException e) {
+                    // ignore
+                }
             }
         }
 
@@ -137,21 +148,11 @@ public class yq implements QuarkusApplication {
             try {
                 targetFormat=Format.valueOf(optionValue.toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new yqException(e);
+                throw new yqException("Illegal format: "+optionValue, e);
             }
         }
 
-        switch (targetFormat) {
-            case JSON:
-                input = json.objectToInputStream(currentObj);
-                break;
-            case YAML:
-                input = yaml.objectToInputStream(currentObj);
-                break;
-            case PLAIN:
-                input = plain.objectToInputStream(currentObj);
-        }
-
+        input = targetFormat.mapper.objectToInputStream(currentObj);
         return input;
     }
 
