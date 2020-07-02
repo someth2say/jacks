@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -151,7 +152,7 @@ public class yq implements QuarkusApplication {
 
     private Format inferFormatFromFilename(CommandLine cmd) {
         if (cmd.hasOption("f")) {
-            String extension = FilenameUtils.getExtension(cmd.getOptionValue("f"));
+            String extension = getExtension(cmd.getOptionValue("f"));
             for (Format format : Format.values()) {
                 for (String formatExtension : format.extensions) {
                     if (formatExtension.equalsIgnoreCase(extension)) {
@@ -161,6 +162,11 @@ public class yq implements QuarkusApplication {
             }
         }
         return null;
+    }
+
+    private String getExtension(String filename) {
+        return Optional.ofNullable(filename).filter(f -> f.contains("."))
+                .map(f -> f.substring(filename.lastIndexOf(".") + 1)).orElse("");
     }
 
     private Format inferFormatFromContent(final String rawContents, TransformationStatus status) {

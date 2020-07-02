@@ -27,9 +27,33 @@ Currently supported formats are:
 - YAML
 - JSON
 - TXT
+- PROPERTIES
 
 TXT format only for encondes arrays, not hierarchical structures. Each array element is just an string. Array elements are separated by a line break (system dependant).
 
+### Format autodetection:
+
+The algorithm used to determine the format of the input is the following:
+
+1. If the `input` parameter is provided, the contents are tried to be parsed using the specified format. 
+2. Else, if the `file` parameter is provided, the extension of the file is used to try to identify the format. If extension matches one of the known standards extensions, the appropriate parser is used.
+3. If no `input` nor `file` parameters (or file extension is not recognised), force brute will be used. That is, program will try each parser available. The first successfull parser determines the format of the input.
+
+Note that the third step is unreliable, as many files can be identified by several parsers:
+- TXT parser can read ANY file
+- PROPERTIES parser can read any YAML file
+- YAML parser can read many TXT and PROPERTIES files.
+
+To avoid this situation, it is recommended to provide the `input` parameter to the program.
+
+#### Format extensions
+
+| Format | File extensions |
+| :----- | :-------------- |
+| JSON   | `.json`         |
+| YAML   | `.yml` `.yaml`  |
+| PROPERTIES | `.props` `.properties` |
+| TXT | `.txt` |
 
 
 ## Examples
@@ -55,39 +79,25 @@ version: 1.0
 * Reading from files
 ```
 $ yq -f menu.yaml -q "$.menu.id"
----
-menuitem:
-- value: "New"
-  onclick: "CreateNewDoc()"
-- value: "Open"
-  onclick: "OpenDoc()"
-- value: "Close"
-  onclick: "CloseDoc()"
-  ```
+--- "file"
+```
 
 This is equivalent to redirecting the input:
 ```
 $ yq -q "$.menu.id" < menu.yaml
----
-menuitem:
-- value: "New"
-...
+--- "file"
 ```
 
 Also equivalent to using pipes:
 ```
 $ cat menu.yaml | yq -q "$.menu.id"
----
-menuitem:
-- value: "New"
-...
+--- "file"
 ```
 
-Indeed, you can also pipe the output:
+Indeed, you can also redirect or pipe the output:
 ```
 $ yq -f menu.yaml -o json > menu.json
 ````
-
 
 ## Quarkus
 
