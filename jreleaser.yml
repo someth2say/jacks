@@ -1,0 +1,39 @@
+project:
+  name: jacks
+  version: 1.0.0-SNAPSHOT
+  description: Hierarchical files query tool
+  longDescription: Hierachical files query too
+  website: https://github.com/someth2say/jacks
+  authors:
+    - Jordi Sola (someth2say)
+  license: Apache-2
+  java:
+    groupId: com.someth2say
+    version: 17
+    mainClass: org.someth2say.Jacks
+  extraProperties:
+    inceptionYear: 2022
+
+packagers:
+  jbang:
+    active: ALWAYS
+    alias: jacks
+
+release:
+  github:
+    owner: someth2say
+    changelog:
+      formatted: ALWAYS
+      preset: 'conventional-commits'
+      format: '- {{commitShortHash}} {{commitTitle}}'
+
+distributions:
+  jar:
+    type: SINGLE_JAR
+    artifacts:
+      - path: target/{{projectName}}-{{projectVersion}}.jar
+  native-linux:
+    type: NATIVE_IMAGE
+    artifacts:
+      - path: target/{{projectName}}-{{projectVersion}}-runner
+        platform: linux
