@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper;
 
-import org.someth2say.yqException;
+import org.someth2say.JacksException;
 
 public class Properties implements FormatMapper {
 	public JavaPropsMapper propsMapper = new JavaPropsMapper();
@@ -23,53 +23,53 @@ public class Properties implements FormatMapper {
 		this(new JavaPropsMapper());
 	}
 
-	public final InputStream objectToInputStream(final Object obj) throws yqException {
+	public final InputStream objectToInputStream(final Object obj) throws JacksException {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
 			propsMapper.writerWithDefaultPrettyPrinter().writeValue(out, obj);
 		} catch (final JsonGenerationException e) {
-			throw new yqException("Can not generate JSON", e);
+			throw new JacksException("Can not generate JSON", e);
 		} catch (final JsonMappingException e) {
-			throw new yqException("Can not encode JSON", e);
+			throw new JacksException("Can not encode JSON", e);
 		} catch (final IOException e) {
-			throw new yqException("Can not write JSON", e);
+			throw new JacksException("Can not write JSON", e);
 		}
 		final InputStream in = new ByteArrayInputStream(out.toByteArray());
 		return in;
 	}
 
 	@Override
-	public final Object inputStreamToObject(final InputStream json) throws yqException {
+	public final Object inputStreamToObject(final InputStream json) throws JacksException {
 		return inputStreamToObject(json, Object.class);
 	}
 
 	@Override
-	public <T> T inputStreamToObject(final InputStream json, Class<T> valueType) throws yqException {
+	public <T> T inputStreamToObject(final InputStream json, Class<T> valueType) throws JacksException {
 		try {
 			return propsMapper.readValue(json, valueType);
 		} catch (JsonParseException e) {
-			throw new yqException("Can not parse JSON", e);
+			throw new JacksException("Can not parse JSON", e);
 		} catch (JsonMappingException e) {
-			throw new yqException("Can not decode JSON", e);
+			throw new JacksException("Can not decode JSON", e);
 		} catch (IOException e) {
-			throw new yqException("Can not read JSON", e);
+			throw new JacksException("Can not read JSON", e);
 		}
 	}
 
 	@Override
-	public Object stringToObject(String json) throws yqException {
+	public Object stringToObject(String json) throws JacksException {
 		return stringToObject(json, Object.class);
 	}
 
-	public <T> T stringToObject(String json, Class<T> valueType) throws yqException {
+	public <T> T stringToObject(String json, Class<T> valueType) throws JacksException {
 		try {
 			return propsMapper.readValue(json, valueType);
 		} catch (JsonParseException e) {
-			throw new yqException("Can not parse JSON", e);
+			throw new JacksException("Can not parse JSON", e);
 		} catch (JsonMappingException e) {
-			throw new yqException("Can not decode JSON", e);
+			throw new JacksException("Can not decode JSON", e);
 		} catch (IOException e) {
-			throw new yqException("Can not read JSON", e);
+			throw new JacksException("Can not read JSON", e);
 		}
 	}
 }

@@ -1,24 +1,22 @@
-# yq project
+# Jacks
 
-![](logo.png)
-
-Yaml files became pretty popular, mainly because they are the main language used for popular tools like Kubernetes or Ansible.
+Yaml files became pretty popular, mainly because they are the main language used for popular tools like Kubernetes or Ansible. But many other hierarchical formats are still much used in the wild: JSON, XML, Properties
 
 This project is inpired by the [`jq`](https://stedolan.github.io/jq/) tool as a CLI tool for parsing json files.
-But the main target of this tool are yaml files.
+But the main difference is that is not target to just JSON files, but any kind of hierarchical configuration file.
 
 This tool allows users to apply [`JSONPath`](https://goessner.net/articles/JsonPath/) queries to yaml files. Colaterally this tool allow seamless conversion between `json` and `yaml` files.
 
 ## Usage
 
-`yq [-f(ile) <filename>] [-q(uery) <jsonpath>] [-i(nput) <format>] [-o(utput) <format>]`
+`jacks [-f(ile) <filename>] [-q(uery) <jsonpath>] [-i(nput) <format>] [-o(utput) <format>]`
 
-|               |              |
-| :------------ | :----------  |
-| f(ile)        | Relative or absolute path for the input file. Currently accepted formats are JSON and YAML. Format is detected by trying to parse de file, not by extension. If this parameter is ommited, standard input is used (press ^D to finish).   |
-| q(uery)       | JsonPath query to apply. This can be provided multiple times, so queries are applied to previous query result.  |
-| i(nput)       | Expected input format. If present, overrides format autodetection 
-| o(utput)      | Format of the output. If ommited, output will retain the same format as the input|
+|          |                                                                                                                                                                                                                                         |
+|:---------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| f(ile)   | Relative or absolute path for the input file. Currently accepted formats are JSON and YAML. Format is detected by trying to parse de file, not by extension. If this parameter is ommited, standard input is used (press ^D to finish). |
+| q(uery)  | JsonPath query to apply. This can be provided multiple times, so queries are applied to previous query result.                                                                                                                          |
+| i(nput)  | Expected input format. If present, overrides format autodetection                                                                                                                                                                       |
+| o(utput) | Format of the output. If ommited, output will retain the same format as the input                                                                                                                                                       |
 
 ## Formats
 
@@ -29,9 +27,11 @@ Currently supported formats are:
 - TXT
 - PROPERTIES
 
-TXT format only for encondes arrays, not hierarchical structures. Each array element is just an string. Array elements are separated by a line break (system dependant).
+TXT format only for encodes arrays, not hierarchical structures. Each array element is just an string. Array elements are separated by a line break (system dependant).
 
-### Format autodetection:
+Future version of this tool will include more formats, such as TOML and XML.
+
+### Format autodetect:
 
 The algorithm used to determine the format of the input is the following:
 
@@ -48,18 +48,18 @@ To avoid this situation, it is recommended to provide the `input` parameter to t
 
 #### Format extensions
 
-| Format | File extensions |
-| :----- | :-------------- |
-| JSON   | `.json`         |
-| YAML   | `.yml` `.yaml`  |
+| Format     | File extensions        |
+|:-----------|:-----------------------|
+| JSON       | `.json`                |
+| YAML       | `.yml` `.yaml`         |
 | PROPERTIES | `.props` `.properties` |
-| TXT | `.txt` |
+| TXT        | `.txt`                 |
 
 
 ## Examples
 * Tranforming yaml to json
 ```
-$ yq -o json
+$ jacks-o json
 format: yaml
 ^D
 {
@@ -69,7 +69,7 @@ format: yaml
 
 * Simple query
 ```
-$ yq -q "$.name"
+$ jacks-q "$.name"
 name: yq
 version: 1.0
 ^D
@@ -78,25 +78,25 @@ version: 1.0
 
 * Reading from files
 ```
-$ yq -f menu.yaml -q "$.menu.id"
+$ jacks-f menu.yaml -q "$.menu.id"
 --- "file"
 ```
 
 This is equivalent to redirecting the input:
 ```
-$ yq -q "$.menu.id" < menu.yaml
+$ jacks-q "$.menu.id" < menu.yaml
 --- "file"
 ```
 
 Also equivalent to using pipes:
 ```
-$ cat menu.yaml | yq -q "$.menu.id"
+$ cat menu.yaml | jacks-q "$.menu.id"
 --- "file"
 ```
 
 Indeed, you can also redirect or pipe the output:
 ```
-$ yq -f menu.yaml -o json > menu.json
+$ jacks-f menu.yaml -o json > menu.json
 ````
 
 ## Quarkus

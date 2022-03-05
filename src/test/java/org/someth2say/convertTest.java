@@ -17,7 +17,7 @@ import io.quarkus.test.junit.QuarkusTest;
 public class convertTest {
 
     @Test
-    public void yamlToJsonToYaml() throws IOException, yqException {
+    public void yamlToJsonToYaml() throws IOException, JacksException {
         final Object yamlObj = Format.YAML.mapper
                 .inputStreamToObject(Files.newInputStream(Paths.get("src/test/resources/menu.yaml")));
         final InputStream yamlIs = Format.YAML.mapper.objectToInputStream(yamlObj);
@@ -28,7 +28,7 @@ public class convertTest {
 
 
     @Test
-    public void yamlTomlToJson() throws IOException, yqException {
+    public void yamlTomlToJson() throws IOException, JacksException {
         final Object jsonObj = Format.JSON.mapper
                 .inputStreamToObject(Files.newInputStream(Paths.get("src/test/resources/menu.json")));
         final InputStream jsonIs = Format.JSON.mapper.objectToInputStream(jsonObj);

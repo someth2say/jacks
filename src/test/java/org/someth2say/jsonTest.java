@@ -14,13 +14,13 @@ import io.quarkus.test.junit.QuarkusTest;
 public class jsonTest {
 
     @Test
-    public void transformTest() throws yqException {
+    public void transformTest() throws JacksException {
         Json json = new Json();
         String jsonString = "{\n  \"name\" : \"value\"\n}";
         InputStream is = new ByteArrayInputStream(jsonString.getBytes());
         Object jsonObject = json.inputStreamToObject(is);
         InputStream jsonIs = json.objectToInputStream(jsonObject);
-        String newJsonString = yq.convertStreamToString(jsonIs);
+        String newJsonString = Jacks.convertStreamToString(jsonIs);
         assertEquals(jsonString, newJsonString, ()->"Json does not transforms to stream correctly.");
     }
 

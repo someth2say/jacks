@@ -19,23 +19,23 @@ import io.quarkus.test.junit.QuarkusTest;
 public class propertiesTest {
 
     @Test
-    public void transformTest() throws yqException {
+    public void transformTest() throws JacksException {
         Properties props = new Properties();
         String propsString = "1=One\n2=Two\n3=Three";
         InputStream is = new ByteArrayInputStream(propsString.getBytes());
         Object propsObject = props.inputStreamToObject(is);
         InputStream propsIs = props.objectToInputStream(propsObject);
-        String newPropsString = yq.convertStreamToString(propsIs);
+        String newPropsString = Jacks.convertStreamToString(propsIs);
         assertEquals(propsString.trim(), newPropsString.trim(), () -> "Properties does not transforms to stream correctly.");
     }
 
     @Test
-    public void serializeTest() throws yqException, IOException {
+    public void serializeTest() throws JacksException, IOException {
         final Object propsObj = new Properties()
                 .inputStreamToObject(Files.newInputStream(Paths.get("src/test/resources/menu.props")));
         Object array = JsonPath.query("$.menu.popup.menuitem[*].value", propsObj);
         InputStream propsIs = new Properties().objectToInputStream(array);
-        String newPropsString = yq.convertStreamToString(propsIs);
+        String newPropsString = Jacks.convertStreamToString(propsIs);
 
         assertTrue(newPropsString.contains("New"));
         assertTrue(newPropsString.contains("Open"));
@@ -43,7 +43,7 @@ public class propertiesTest {
     }
 
     @Test
-    public void deserializeTest() throws yqException, IOException {
+    public void deserializeTest() throws JacksException, IOException {
         Path path = Paths.get("src/test/resources/menu.props");
         final Object propsObj = new Properties().inputStreamToObject(Files.newInputStream(path));
         InputStream propsIs = new Properties().objectToInputStream(propsObj);
