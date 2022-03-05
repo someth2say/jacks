@@ -17,7 +17,6 @@ import org.apache.commons.cli.ParseException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.someth2say.formats.Format;
 
-import io.quarkus.launcher.shaded.org.apache.commons.io.FilenameUtils;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
