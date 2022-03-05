@@ -1,0 +1,24 @@
+project:
+  name: jacks
+  version: 1.0.0-SNAPSHOT
+  description: Hierachical files query tool
+  longDescription: Hierachical files query too
+  website: https://github.com/someth2say/jacks
+  authors:
+    - Jordi Sola (someth2say)
+  license: Apache-2
+  java:
+    groupId: com.someth2say
+    version: 17
+  extraProperties:
+    inceptionYear: 2022
+
+release:
+  github:
+    owner: someth2say
+
+distributions:
+  jacks:
+    type: SINGLE_JAR
+    artifacts:
+      - path: target/{{distributionName}}-{{projectVersion}}.jar
