@@ -4,7 +4,7 @@ import com.jayway.jsonpath.JsonPathException;
 
 public class JsonPath {
 
-	public static Object query(String query, Object obj) throws JacksException {
+	public static Object query(final String query, final Object obj) throws JacksException {
 		try {
 			return com.jayway.jsonpath.JsonPath.read(obj, query);
 		} catch (final JsonPathException e) {
@@ -12,9 +12,9 @@ public class JsonPath {
 		}
 	}
 
-	public static <T> T query(String query, Object obj, Class<T> valueType) throws JacksException {
+	public static <T> T query(final String query, final Object obj, final Class<T> valueType) throws JacksException {
 		try {
-			return com.jayway.jsonpath.JsonPath.<T>read(obj, query);
+			return com.jayway.jsonpath.JsonPath.read(obj, query);
 		} catch (final JsonPathException e) {
 			throw new JacksException("Can not apply JsonPath", e);
 		}

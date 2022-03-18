@@ -20,6 +20,6 @@ public class yamlTest {
         Object yamlObject = yaml.inputStreamToObject(is);
         InputStream yamlIs = yaml.objectToInputStream(yamlObject);
         String newJsonString = Jacks.convertStreamToString(yamlIs);
-        assertEquals(yamlString, newJsonString, ()->"Json does not transforms to stream correctly.");
+        assertEquals(yamlString, newJsonString, ()->"Yaml does not transforms to stream correctly.");
     }
 }
