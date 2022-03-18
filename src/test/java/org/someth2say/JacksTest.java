@@ -9,8 +9,8 @@ import java.io.PrintStream;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.someth2say.formats.Json;
-import org.someth2say.formats.Yaml;
+import org.someth2say.format.Json;
+import org.someth2say.format.Yaml;
 
 import io.quarkus.test.junit.QuarkusTest;
 

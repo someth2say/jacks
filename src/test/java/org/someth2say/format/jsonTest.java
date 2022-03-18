@@ -1,4 +1,4 @@
-package org.someth2say;
+package org.someth2say.format;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -6,7 +6,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.junit.jupiter.api.Test;
-import org.someth2say.formats.Json;
+import org.someth2say.JacksException;
+import org.someth2say.StreamUtils;
+import org.someth2say.format.Json;
 
 import io.quarkus.test.junit.QuarkusTest;
 

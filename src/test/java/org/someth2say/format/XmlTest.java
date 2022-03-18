@@ -1,8 +1,10 @@
-package org.someth2say;
+package org.someth2say.format;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
-import org.someth2say.formats.Xml;
+import org.someth2say.JacksException;
+import org.someth2say.StreamUtils;
+import org.someth2say.format.Xml;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

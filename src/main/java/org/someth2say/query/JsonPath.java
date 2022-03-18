@@ -1,10 +1,10 @@
-package org.someth2say;
+package org.someth2say.query;
 
 import com.jayway.jsonpath.JsonPathException;
+import org.someth2say.JacksException;
 
-public class JsonPath {
-
-	public static Object query(final String query, final Object obj) throws JacksException {
+public class JsonPath implements QuerySolver {
+	public Object query(String query, Object obj) throws JacksException {
 		try {
 			return com.jayway.jsonpath.JsonPath.read(obj, query);
 		} catch (final JsonPathException e) {
@@ -12,7 +12,7 @@ public class JsonPath {
 		}
 	}
 
-	public static <T> T query(final String query, final Object obj, final Class<T> valueType) throws JacksException {
+	public <T> T query(String query, Object obj, Class<T> valueType) throws JacksException {
 		try {
 			return com.jayway.jsonpath.JsonPath.read(obj, query);
 		} catch (final JsonPathException e) {

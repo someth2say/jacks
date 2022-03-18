@@ -15,11 +15,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.someth2say.formats.Format;
+import org.someth2say.format.Format;
 
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
+import org.someth2say.query.QueryLang;
 
 @QuarkusMain
 public class Jacks implements QuarkusApplication {
@@ -184,7 +185,7 @@ public class Jacks implements QuarkusApplication {
     private Object applyQueries(final CommandLine cmd, Object currentObj) throws JacksException {
         if (cmd.getOptionValues('q') != null) {
             for (final String query : cmd.getOptionValues('q')) {
-                currentObj = JsonPath.query(query, currentObj);
+                currentObj = QueryLang.JSONPATH.getSolver().query(query, currentObj);
             }
         }
         return currentObj;

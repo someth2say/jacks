@@ -1,6 +1,6 @@
 package org.someth2say;
 
-import org.someth2say.formats.Format;
+import org.someth2say.format.Format;
 
 import java.io.InputStream;
 

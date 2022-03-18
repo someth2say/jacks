@@ -1,4 +1,4 @@
-package org.someth2say;
+package org.someth2say.format;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,9 +11,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
-import org.someth2say.formats.Properties;
+import org.someth2say.JacksException;
+import org.someth2say.StreamUtils;
+import org.someth2say.format.Properties;
 
 import io.quarkus.test.junit.QuarkusTest;
+import org.someth2say.query.QueryLang;
 
 @QuarkusTest
 public class propertiesTest {
@@ -33,7 +36,7 @@ public class propertiesTest {
     public void serializeTest() throws JacksException, IOException {
         final Object propsObj = new Properties()
                 .inputStreamToObject(Files.newInputStream(Paths.get("src/test/resources/menu.props")));
-        Object array = JsonPath.query("$.menu.popup.menuitem[*].value", propsObj);
+        Object array = QueryLang.JSONPATH.getSolver().query("$.menu.popup.menuitem[*].value", propsObj);
         InputStream propsIs = new Properties().objectToInputStream(array);
         String newPropsString = StreamUtils.convertStreamToString(propsIs);
 

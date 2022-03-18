@@ -1,4 +1,4 @@
-package org.someth2say;
+package org.someth2say.format;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,10 +11,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
-import org.someth2say.formats.Txt;
-import org.someth2say.formats.Yaml;
+import org.someth2say.JacksException;
+import org.someth2say.StreamUtils;
+import org.someth2say.format.Txt;
+import org.someth2say.format.Yaml;
 
 import io.quarkus.test.junit.QuarkusTest;
+import org.someth2say.query.QueryLang;
 
 @QuarkusTest
 public class txtTest {
@@ -34,7 +37,7 @@ public class txtTest {
     public void serializeTest() throws JacksException, IOException {
         final Object yamlObj = new Yaml()
                 .inputStreamToObject(Files.newInputStream(Paths.get("src/test/resources/menu.yaml")));
-        Object array = JsonPath.query("$.menu.popup.menuitem[*].value", yamlObj);
+        Object array = QueryLang.JSONPATH.getSolver().query("$.menu.popup.menuitem[*].value", yamlObj);
         InputStream plainIs = new Txt().objectToInputStream(array);
         String newPlainString = StreamUtils.convertStreamToString(plainIs);
 

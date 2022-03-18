@@ -1,4 +1,4 @@
-package org.someth2say.formats;
+package org.someth2say.format;
 
 import org.someth2say.JacksException;
 

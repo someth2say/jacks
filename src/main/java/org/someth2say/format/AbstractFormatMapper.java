@@ -1,4 +1,4 @@
-package org.someth2say.formats;
+package org.someth2say.format;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
