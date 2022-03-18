@@ -15,11 +15,11 @@ public class yamlTest {
     @Test
     public void transformTest() throws JacksException {
         Yaml yaml = new Yaml();
-        String yamlString = "---\nname: \"value\"\n";
+        String yamlString = "name: \"value\"\n";
         InputStream is = new ByteArrayInputStream(yamlString.getBytes());
         Object yamlObject = yaml.inputStreamToObject(is);
         InputStream yamlIs = yaml.objectToInputStream(yamlObject);
-        String newJsonString = Jacks.convertStreamToString(yamlIs);
+        String newJsonString = StreamUtils.convertStreamToString(yamlIs);
         assertEquals(yamlString, newJsonString, ()->"Yaml does not transforms to stream correctly.");
     }
 }

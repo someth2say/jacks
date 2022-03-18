@@ -89,12 +89,6 @@ public class Jacks implements QuarkusApplication {
         return 0;
     }
 
-    static String convertStreamToString(final java.io.InputStream is) {
-        try (java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A")) {
-            return s.hasNext() ? s.next() : "";
-        }
-    }
-
     private static class TransformationStatus {
         Format initialFormat = null;
         Object currentObj = null;
@@ -113,7 +107,7 @@ public class Jacks implements QuarkusApplication {
     private TransformationStatus transformInput(final CommandLine cmd) throws JacksException {
         final InputStream input = prepareInput(cmd);
 
-        final String rawContents = convertStreamToString(input);
+        final String rawContents = StreamUtils.convertStreamToString(input);
 
         return computeInitialStatus(cmd, rawContents);
     }
@@ -134,7 +128,7 @@ public class Jacks implements QuarkusApplication {
 
         if (status.initialFormat != null) {
             if (status.currentObj == null) {
-                status.currentObj = status.initialFormat.mapper.stringToObject(rawContents);
+                status.currentObj = status.initialFormat.getMapper().stringToObject(rawContents);
             }
         } else {
             throw new JacksException("Unable to infer input format");
@@ -177,7 +171,7 @@ public class Jacks implements QuarkusApplication {
     private Format inferFormatFromContent(final String rawContents, final TransformationStatus status) {
         for (Format format : Format.values()) {
             try {
-                status.currentObj = format.mapper.stringToObject(rawContents);
+                status.currentObj = format.getMapper().stringToObject(rawContents);
                 status.initialFormat = format;
                 return format;
             } catch (final JacksException e) {
@@ -209,7 +203,7 @@ public class Jacks implements QuarkusApplication {
             }
         }
 
-        return targetFormat.mapper.objectToInputStream(status.currentObj);
+        return targetFormat.getMapper().objectToInputStream(status.currentObj);
     }
 
     private InputStream prepareInput(final CommandLine cmd) throws JacksException {

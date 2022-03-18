@@ -1,5 +1,6 @@
 package org.someth2say.formats;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 public class Yaml extends AbstractFormatMapper<YAMLMapper> implements FormatMapper {
@@ -9,7 +10,7 @@ public class Yaml extends AbstractFormatMapper<YAMLMapper> implements FormatMapp
     }
 
     public Yaml() {
-        this(new YAMLMapper());
+        this(YAMLMapper.builder().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER).build());
     }
 
 }

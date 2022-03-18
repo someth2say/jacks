@@ -1,18 +1,24 @@
 package org.someth2say.formats;
 
-public enum Format {
-    JSON(new Json(), "json"),
-    YAML(new Yaml(), "yml", "yaml"),
-    XML(new Xml(), "xml"),
-    PROPS(new Properties(), "props", "properties"),
-    TXT(new Txt(), "txt");
+import java.util.function.Supplier;
 
-    public final FormatMapper mapper;
+public enum Format {
+    JSON(Json::new, "json"),
+    YAML(Yaml::new, "yml", "yaml"),
+    XML(Xml::new, "xml"),
+    PROPS(Properties::new, "props", "properties"),
+    TXT(Txt::new, "txt");
+
+    private final Supplier<FormatMapper> mapperProducer;
+    private FormatMapper mapper;
     public final String[] extensions;
 
-    Format(final FormatMapper mapper, final String... extensions) {
-        this.mapper = mapper;
+    Format(final Supplier<FormatMapper> mapperProducer, final String... extensions) {
+        this.mapperProducer = mapperProducer;
         this.extensions = extensions;
     }
 
+    public FormatMapper getMapper() {
+        return mapper != null ? mapper : (mapper = mapperProducer.get());
+    }
 }

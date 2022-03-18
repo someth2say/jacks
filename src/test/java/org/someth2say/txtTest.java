@@ -26,7 +26,7 @@ public class txtTest {
         InputStream is = new ByteArrayInputStream(plainString.getBytes());
         Object plainObject = plain.inputStreamToObject(is);
         InputStream plainIs = plain.objectToInputStream(plainObject);
-        String newPlainString = Jacks.convertStreamToString(plainIs);
+        String newPlainString = StreamUtils.convertStreamToString(plainIs);
         assertEquals(plainString, newPlainString, () -> "Plain does not transforms to stream correctly.");
     }
 
@@ -36,7 +36,7 @@ public class txtTest {
                 .inputStreamToObject(Files.newInputStream(Paths.get("src/test/resources/menu.yaml")));
         Object array = JsonPath.query("$.menu.popup.menuitem[*].value", yamlObj);
         InputStream plainIs = new Txt().objectToInputStream(array);
-        String newPlainString = Jacks.convertStreamToString(plainIs);
+        String newPlainString = StreamUtils.convertStreamToString(plainIs);
 
         assertTrue(newPlainString.contains("New"));
         assertTrue(newPlainString.contains("Open"));
@@ -49,7 +49,7 @@ public class txtTest {
         InputStream newInputStream = Files.newInputStream(path);
         final Object plainObj = new Txt().inputStreamToObject(newInputStream);
         InputStream plainIs = new Txt().objectToInputStream(plainObj);
-        String newPlainString = Jacks.convertStreamToString(plainIs);
+        String newPlainString = StreamUtils.convertStreamToString(plainIs);
 
         byte[] readAllBytes = Files.readAllBytes(path);
         assertEquals(newPlainString.trim(), new String(readAllBytes).trim(),
