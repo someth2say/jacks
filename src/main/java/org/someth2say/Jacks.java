@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import io.smallrye.config.common.utils.StringUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -73,7 +72,7 @@ public class Jacks implements QuarkusApplication {
         final OutputStream output = System.out;
         InputStream input;
         try {
-            input = transform(cmd);
+            input = performTransformations(cmd);
         } catch (final JacksException e) {
             deepCauseToSysErr("Unable to process", e);
             return -1;
@@ -86,13 +85,8 @@ public class Jacks implements QuarkusApplication {
             deepCauseToSysErr("Error writing process results", e);
             return -1;
         }
-        return 0;
-    }
 
-    static String convertStreamToString(final java.io.InputStream is) {
-        try (java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A")) {
-            return s.hasNext() ? s.next() : "";
-        }
+        return 0;
     }
 
     private static class TransformationStatus {
@@ -100,17 +94,22 @@ public class Jacks implements QuarkusApplication {
         Object currentObj = null;
     }
 
-    private InputStream transform(final CommandLine cmd) throws JacksException {
-        final InputStream input = prepareInput(cmd);
+    private InputStream performTransformations(final CommandLine cmd) throws JacksException {
 
-        final String rawContents = convertStreamToString(input);
-
-        TransformationStatus status = computeInitialStatus(cmd, rawContents);
+        TransformationStatus status = transformInput(cmd);
 
         status.currentObj = applyQueries(cmd, status.currentObj);
 
         return transformOutput(cmd, status);
 
+    }
+
+    private TransformationStatus transformInput(final CommandLine cmd) throws JacksException {
+        final InputStream input = prepareInput(cmd);
+
+        final String rawContents = StreamUtils.convertStreamToString(input);
+
+        return computeInitialStatus(cmd, rawContents);
     }
 
     private TransformationStatus computeInitialStatus(final CommandLine cmd, final String rawContents)
@@ -129,7 +128,7 @@ public class Jacks implements QuarkusApplication {
 
         if (status.initialFormat != null) {
             if (status.currentObj == null) {
-                status.currentObj = status.initialFormat.mapper.stringToObject(rawContents);
+                status.currentObj = status.initialFormat.getMapper().stringToObject(rawContents);
             }
         } else {
             throw new JacksException("Unable to infer input format");
@@ -150,7 +149,7 @@ public class Jacks implements QuarkusApplication {
         return null;
     }
 
-    private Format inferFormatFromFilename(CommandLine cmd) {
+    private Format inferFormatFromFilename(final CommandLine cmd) {
         if (cmd.hasOption("f")) {
             String extension = getExtension(cmd.getOptionValue("f"));
             for (Format format : Format.values()) {
@@ -169,10 +168,10 @@ public class Jacks implements QuarkusApplication {
                 .map(f -> f.substring(filename.lastIndexOf(".") + 1)).orElse("");
     }
 
-    private Format inferFormatFromContent(final String rawContents, TransformationStatus status) {
+    private Format inferFormatFromContent(final String rawContents, final TransformationStatus status) {
         for (Format format : Format.values()) {
             try {
-                status.currentObj = format.mapper.stringToObject(rawContents);
+                status.currentObj = format.getMapper().stringToObject(rawContents);
                 status.initialFormat = format;
                 return format;
             } catch (final JacksException e) {
@@ -204,7 +203,7 @@ public class Jacks implements QuarkusApplication {
             }
         }
 
-        return targetFormat.mapper.objectToInputStream(status.currentObj);
+        return targetFormat.getMapper().objectToInputStream(status.currentObj);
     }
 
     private InputStream prepareInput(final CommandLine cmd) throws JacksException {

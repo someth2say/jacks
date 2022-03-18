@@ -25,7 +25,7 @@ public class propertiesTest {
         InputStream is = new ByteArrayInputStream(propsString.getBytes());
         Object propsObject = props.inputStreamToObject(is);
         InputStream propsIs = props.objectToInputStream(propsObject);
-        String newPropsString = Jacks.convertStreamToString(propsIs);
+        String newPropsString = StreamUtils.convertStreamToString(propsIs);
         assertEquals(propsString.trim(), newPropsString.trim(), () -> "Properties does not transforms to stream correctly.");
     }
 
@@ -35,7 +35,7 @@ public class propertiesTest {
                 .inputStreamToObject(Files.newInputStream(Paths.get("src/test/resources/menu.props")));
         Object array = JsonPath.query("$.menu.popup.menuitem[*].value", propsObj);
         InputStream propsIs = new Properties().objectToInputStream(array);
-        String newPropsString = Jacks.convertStreamToString(propsIs);
+        String newPropsString = StreamUtils.convertStreamToString(propsIs);
 
         assertTrue(newPropsString.contains("New"));
         assertTrue(newPropsString.contains("Open"));

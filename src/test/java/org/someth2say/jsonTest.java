@@ -20,7 +20,7 @@ public class jsonTest {
         InputStream is = new ByteArrayInputStream(jsonString.getBytes());
         Object jsonObject = json.inputStreamToObject(is);
         InputStream jsonIs = json.objectToInputStream(jsonObject);
-        String newJsonString = Jacks.convertStreamToString(jsonIs);
+        String newJsonString = StreamUtils.convertStreamToString(jsonIs);
         assertEquals(jsonString, newJsonString, ()->"Json does not transforms to stream correctly.");
     }
 
