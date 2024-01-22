@@ -14,7 +14,7 @@
     <quarkus.platform.version>2.7.3.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
     <jackson.version>2.11.0</jackson.version>
-    <jsonpath.version>2.4.0</jsonpath.version>
+    <jsonpath.version>2.9.0</jsonpath.version>
     <mvn.project.version>${project.version}</mvn.project.version>
     <mvn.project.name>${project.name}</mvn.project.name>
   </properties>
